@@ -1,60 +1,47 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-type Recipe = {
-  id: number;
+type PokemonListItem = {
   name: string;
-  instructions: string[];
-  // 필요한 만큼 더 추가 가능
+  url: string;
 };
 
-type RecipeResponse = {
-  recipes: Recipe[];
-  total: number;
-  skip: number;
-  limit: number;
+type PokemonListResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: PokemonListItem[];
 };
 
-const fetchRecipes = async (): Promise<RecipeResponse> => {
-  // const res = await fetch("https://jsonplaceholder.typicode.com/posts");
-  const res = await fetch("https://dummyjson.com/recipes");
-  if (!res.ok) throw Error("failed to fetch");
+// 2. 리스트 API
+const fetchPokemonList = async (): Promise<PokemonListResponse> => {
+  const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=30");
+  if (!res.ok) throw new Error("Failed to fetch pokemon list");
   return res.json();
 };
 
+// 3. 컴포넌트
 export default function Home() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["recipes"],
-    queryFn: fetchRecipes,
+  const { data, isLoading, error } = useQuery<PokemonListResponse>({
+    queryKey: ["pokemon-list"],
+    queryFn: fetchPokemonList,
   });
 
-  // console.log("data", data);
-
   if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error occurred</p>;
+  if (error) return <p>Error loading Pokemon list</p>;
 
-  const recipes = data?.recipes ?? [];
+  const list = data?.results ?? [];
 
   return (
-    <>
-      <h1>Post List</h1>
+    <div style={{ padding: "20px" }}>
+      <h1>Pokémon List</h1>
       <ul>
-        {/* {data?.slice(0, 10).map((post: any) => (
-          <li key={post.id}>
-            <Link to={`/detail/${post.id}`}>{post.title}</Link>
+        {list.map((poke) => (
+          <li key={poke.name}>
+            <Link to={`/detail/${poke.name}`}>{poke.name}</Link>
           </li>
-        ))} */}
-        {recipes.length > 0 ? (
-          recipes.map((recipes) => (
-            <li key={recipes.id}>
-              <Link to={`/detail/${recipes.id}`}>{recipes.name}</Link>
-            </li>
-          ))
-        ) : (
-          <p>no data</p>
-        )}
+        ))}
       </ul>
-    </>
+    </div>
   );
 }
