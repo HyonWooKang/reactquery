@@ -7,12 +7,10 @@ const route = createBrowserRouter([
   {
     path: "/",
     Component: Home,
-    children: [
-      {
-        path: "/detail",
-        Component: DetailPage,
-      },
-    ],
+  },
+  {
+    path: "/detail/:name",
+    Component: DetailPage,
   },
   {
     path: "/settings",
