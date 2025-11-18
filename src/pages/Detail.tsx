@@ -1,7 +1,38 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 
-const fetchPokemonDetail = async (name: string) => {
+type PokemonSprite = {
+  front_default: string;
+};
+
+type PokemonType = {
+  slot: number;
+  type: {
+    name: string; // fire, water, etc
+    url: string;
+  };
+};
+
+type PokemonStat = {
+  base_stat: number;
+  effort: number;
+  stat: {
+    name: string; // hp, defense, etc
+    url: string;
+  };
+};
+
+type PokemonDetail = {
+  id: number;
+  name: string;
+  sprites: PokemonSprite;
+  types: PokemonType[];
+  stats: PokemonStat[];
+  height: number;
+  weight: number;
+};
+
+const fetchPokemonDetail = async (name: string): Promise<PokemonDetail> => {
   const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
   if (!res.ok) throw new Error("Failed to fetch detail");
   return res.json();
@@ -28,15 +59,15 @@ const DetailPage = () => {
       />
       <h3>Types</h3>
       <ul>
-        {data?.types.map((type: any) => (
-          <li key={type.slot}>{type.type.name}</li>
+        {data?.types.map((t) => (
+          <li key={t.slot}>{t.type.name}</li>
         ))}
       </ul>
       <h3>Stats</h3>
       <ul>
-        {data?.stats.map((stat: any) => (
-          <li key={stat.stat.name}>
-            {stat.stat.name}: {stat.base_stat}
+        {data?.stats.map((s) => (
+          <li key={s.stat.name}>
+            {s.stat.name}: {s.base_stat}
           </li>
         ))}
       </ul>
